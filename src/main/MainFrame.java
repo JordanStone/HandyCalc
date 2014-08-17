@@ -307,12 +307,12 @@ public class MainFrame extends JFrame{
 		
 		c.gridx = MAXWIDTH;
 		temp = new JButton("2-/");
-		temp.addActionListener(new oneVarFuncPressed(new Sqrt(),"Sqrt"));
+		temp.addActionListener(new oneVarFuncPressed(new MathFunc.Sqrt(),"Sqrt"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 1;
 		temp = new JButton("x^2");
-		temp.addActionListener(new oneVarFuncPressed(new Square(),"Sqr"));
+		temp.addActionListener(new oneVarFuncPressed(new MathFunc.Square(),"Sqr"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 2;
@@ -328,7 +328,7 @@ public class MainFrame extends JFrame{
 		
 		c.gridx = MAXWIDTH - 3;
 		temp = new JButton("CE");
-		temp.addActionListener(new ActionListener(){ //Listener for CE. Clears current value / equation but not function.
+		temp.addActionListener(new ActionListener(){ //Listener for CE. Clears current entry but not function.
 			public void actionPerformed(ActionEvent e) {
 				calcField.setText("0"); 
 				firstDigit = true;
@@ -352,27 +352,27 @@ public class MainFrame extends JFrame{
 		
 		c.gridx = MAXWIDTH;
 		temp = new JButton("x-/");
-		temp.addActionListener(new twoVarFuncPressed(new Yroot()," Yroot "));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Yroot()," Yroot "));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 1;
 		temp = new JButton("x^y");
-		temp.addActionListener(new twoVarFuncPressed(new Pow()," ^ "));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Pow()," ^ "));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 2;
 		temp = new JButton("+-");
-		temp.addActionListener(new oneVarFuncPressed(new Neg(),"Negate"));
+		temp.addActionListener(new oneVarFuncPressed(new MathFunc.Neg(),"Negate"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 3;
 		temp = new JButton("n!");
-		temp.addActionListener(new oneVarFuncPressed(new Fact(), "Fact")); 
+		temp.addActionListener(new oneVarFuncPressed(new MathFunc.Fact(), "Fact")); 
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 4;
 		temp = new JButton("Mod");
-		temp.addActionListener(new twoVarFuncPressed(new Mod(), "Mod"));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Mod(), "Mod"));
 		gridSpace.add(temp,c);
 		
 	//Second Row
@@ -380,12 +380,12 @@ public class MainFrame extends JFrame{
 		
 		c.gridx = MAXWIDTH;
 		temp = new JButton("%"); //Note: This one is a little bit odd. Will take more time to implement correctly.
-		temp.addActionListener(new oneVarFuncPressed(new Percent(),"Per"));
+		temp.addActionListener(new oneVarFuncPressed(new MathFunc.Percent(),"Per"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 1;
 		temp = new JButton("/");
-		temp.addActionListener(new twoVarFuncPressed(new Div()," / "));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Div()," / "));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 4;
@@ -401,12 +401,12 @@ public class MainFrame extends JFrame{
 		
 		c.gridx = MAXWIDTH;
 		temp = new JButton("1/X");
-		temp.addActionListener(new oneVarFuncPressed(new Inverse(),"Reciproc"));
+		temp.addActionListener(new oneVarFuncPressed(new MathFunc.Inverse(),"Reciproc"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 1;
 		temp = new JButton("*");
-		temp.addActionListener(new twoVarFuncPressed(new Mult()," * "));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Mult()," * "));
 		gridSpace.add(temp,c);
 		
 	//Fourth Row
@@ -432,7 +432,7 @@ public class MainFrame extends JFrame{
 		c.gridx = MAXWIDTH - 1;
 		c.gridheight = 1;
 		temp = new JButton("-");
-		temp.addActionListener(new twoVarFuncPressed(new Minus()," - "));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Minus()," - "));
 		gridSpace.add(temp,c);
 		
 	//Fifth Row
@@ -440,7 +440,7 @@ public class MainFrame extends JFrame{
 		
 		c.gridx = MAXWIDTH - 1;
 		temp = new JButton("+");
-		temp.addActionListener(new twoVarFuncPressed(new Plus()," + "));
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Plus()," + "));
 		gridSpace.add(temp,c);
 
 		return gridSpace;
