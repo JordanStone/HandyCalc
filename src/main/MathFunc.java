@@ -24,34 +24,5 @@ public abstract class MathFunc {
 	public void setVar(double v){
 		holdVar = v;
 	}
-/*
-	
-	
-	public double mult(double x, double y){
-		double rv = 0;
-		
-		rv = x * y;
-		
-		return rv;
-	}
-	
-	public double div(double x, double y){
-		double rv = 0;
-		
-		rv = x / y;
-		
-		return rv;
-	}
-	
-	
-	public double recip(double x){
-		double rv = 0;
-		
-		
-		return rv;
-	}
-
-*/
 }
-
 

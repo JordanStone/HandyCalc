@@ -9,13 +9,17 @@
 package main;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-public class Interface extends JFrame{
+public class MainFrame extends JFrame{
 	
 	static JTextField calcField;
 	static JLabel dispLabel;
@@ -31,7 +35,7 @@ public class Interface extends JFrame{
 	public static void main (String[] args){
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                Interface ex = new Interface();
+                MainFrame ex = new MainFrame();
                 ex.setVisible(true);
                 ex.setResizable(false);
             }
@@ -41,7 +45,7 @@ public class Interface extends JFrame{
 	
 //Component Construction
 	
-	public Interface(){
+	public MainFrame(){
 		buildComponents();
 	}
 	
@@ -71,7 +75,9 @@ public class Interface extends JFrame{
         eMenuItem.setToolTipText("Copy Number Currently in Result Box");
         eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own class as it will be called from key commands
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				StringSelection sel = new StringSelection(calcField.getText());
+				Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
+				cl.setContents(sel,sel);
 			}
         }); 
         edit.add(eMenuItem);
@@ -81,7 +87,24 @@ public class Interface extends JFrame{
         eMenuItem.setToolTipText("Paste Number into Result Box");
         eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own class as it will be called from key commands
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
+				Transferable clip = cl.getContents(cl);
+				String regExp = "[\\x00-\\x20]*[+-]?(((((\\p{Digit}+)(\\.)?((\\p{Digit}+)?)([eE][+-]?(\\p{Digit}+))?)|(\\.((\\p{Digit}+))([eE][+-]?(\\p{Digit}+))?)|(((0[xX](\\p{XDigit}+)(\\.)?)|(0[xX](\\p{XDigit}+)?(\\.)(\\p{XDigit}+)))[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*";
+				if (clip != null){
+					try {
+						if (clip.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+		                  String s = (String)(clip.getTransferData(DataFlavor.stringFlavor));
+		                  if (s.matches(regExp)){
+		                	  calcField.setText(s);
+		                  }
+		                }
+					}catch (UnsupportedFlavorException ufe) {
+						System.err.println("Flavor unsupported: " + ufe);
+		            }catch (IOException ioe) {
+		            	System.err.println("Data not available: " + ioe);
+		            }
+				}
+				
 			}
         });
         edit.add(eMenuItem);
@@ -205,53 +228,56 @@ public class Interface extends JFrame{
 		temp.addActionListener(new numPressed(9));
 		nums.add(temp,c);
 		
-		c.gridx = 0;
+		c.gridx = 1;
 		temp = new JButton("8");
 		temp.addActionListener(new numPressed(8));
 		nums.add(temp,c);
 		
-		c.gridx = 1;
+		c.gridx = 0;
 		temp = new JButton("7");
 		temp.addActionListener(new numPressed(7));
 		nums.add(temp,c);
 		
 		//Middle High Row
-		c.gridx = 2;
 		c.gridy = 1;
+		
+		c.gridx = 2;
 		temp = new JButton("6");
 		temp.addActionListener(new numPressed(6));
 		nums.add(temp,c);
 		
-		c.gridx = 0;
+		c.gridx = 1;
 		temp = new JButton("5");
 		temp.addActionListener(new numPressed(5));
 		nums.add(temp,c);
 		
-		c.gridx = 1;
+		c.gridx = 0;
 		temp = new JButton("4");
 		temp.addActionListener(new numPressed(4));
 		nums.add(temp,c);
 		
 		//Middle Low Row
-		c.gridx = 2;
 		c.gridy = 2;
+		
+		c.gridx = 2;
 		temp = new JButton("3");
 		temp.addActionListener(new numPressed(3));
 		nums.add(temp,c);
 		
-		c.gridx = 0;
+		c.gridx = 1;
 		temp = new JButton("2");
 		temp.addActionListener(new numPressed(2));
 		nums.add(temp,c);
 		
-		c.gridx = 1;
+		c.gridx = 0;
 		temp = new JButton("1");
 		temp.addActionListener(new numPressed(1));
 		nums.add(temp,c);
 		
 		//Bottom Row
-		c.gridx = 2;
 		c.gridy = 3;
+		
+		c.gridx = 2;
 		nums.add(new JButton("."),c);
 		
 		c.gridx = 0;
@@ -264,7 +290,7 @@ public class Interface extends JFrame{
 	}
 	
 	public static Component mainGrid(){
-		int MAXHEIGHT = 4; //How many rows
+		int MAXHEIGHT = 5; //How many rows
 		int MAXWIDTH = 4; //How many columns
 		
 		JPanel gridSpace = new JPanel();
@@ -274,25 +300,24 @@ public class Interface extends JFrame{
 		
 		c.insets = new Insets(3,3,3,3); //Grid Spacing
 		c.fill = GridBagConstraints.BOTH;
-		c.gridheight = 1;
-		c.gridwidth = 1; 
+		c.weighty = 0;
 		
 	//Top Row, Filled right to left
-		c.gridy = MAXHEIGHT - 4;
+		c.gridy = MAXHEIGHT - 5;
 		
 		c.gridx = MAXWIDTH;
-		temp = new JButton("-/");
+		temp = new JButton("2-/");
 		temp.addActionListener(new oneVarFuncPressed(new Sqrt(),"Sqrt"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 1;
-		temp = new JButton("+-");
-		temp.addActionListener(new oneVarFuncPressed(new Neg(),"Negate"));
+		temp = new JButton("x^2");
+		temp.addActionListener(new oneVarFuncPressed(new Square(),"Sqr"));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 2;
 		temp = new JButton("C");
-		temp.addActionListener(new ActionListener(){ //Listener for C
+		temp.addActionListener(new ActionListener(){ //Listener for C. Clears all.
 			public void actionPerformed(ActionEvent e) {
 				calcField.setText("0"); 
 				dispLabel.setText(" "); //Clear the display label
@@ -303,10 +328,9 @@ public class Interface extends JFrame{
 		
 		c.gridx = MAXWIDTH - 3;
 		temp = new JButton("CE");
-		temp.addActionListener(new ActionListener(){ //Listener for CE
+		temp.addActionListener(new ActionListener(){ //Listener for CE. Clears current value / equation but not function.
 			public void actionPerformed(ActionEvent e) {
 				calcField.setText("0"); 
-				dispLabel.setText(" "); //Clear the display label
 				firstDigit = true;
 			}
 		});
@@ -316,10 +340,39 @@ public class Interface extends JFrame{
 		temp = new JButton("<=");
 		temp.addActionListener(new ActionListener(){ //Listener for <=
 			public void actionPerformed(ActionEvent e) {
-				
+				// TODO Auto-generated method stub
 
 			}
 		});
+		gridSpace.add(temp,c);
+		
+		
+	//Second Row
+		c.gridy = MAXHEIGHT - 4;
+		
+		c.gridx = MAXWIDTH;
+		temp = new JButton("x-/");
+		temp.addActionListener(new twoVarFuncPressed(new Yroot()," Yroot "));
+		gridSpace.add(temp,c);
+		
+		c.gridx = MAXWIDTH - 1;
+		temp = new JButton("x^y");
+		temp.addActionListener(new twoVarFuncPressed(new Pow()," ^ "));
+		gridSpace.add(temp,c);
+		
+		c.gridx = MAXWIDTH - 2;
+		temp = new JButton("+-");
+		temp.addActionListener(new oneVarFuncPressed(new Neg(),"Negate"));
+		gridSpace.add(temp,c);
+		
+		c.gridx = MAXWIDTH - 3;
+		temp = new JButton("n!");
+		temp.addActionListener(new oneVarFuncPressed(new Fact(), "Fact")); 
+		gridSpace.add(temp,c);
+		
+		c.gridx = MAXWIDTH - 4;
+		temp = new JButton("Mod");
+		temp.addActionListener(new twoVarFuncPressed(new Mod(), "Mod"));
 		gridSpace.add(temp,c);
 		
 	//Second Row
@@ -336,7 +389,6 @@ public class Interface extends JFrame{
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 4;
-		c.gridy = MAXWIDTH - 3;
 		c.gridwidth = 3;
 		c.gridheight = 4;
 		gridSpace.add(numberGrid(),c);
@@ -362,6 +414,7 @@ public class Interface extends JFrame{
 		
 		c.gridx = MAXWIDTH;
 		c.gridheight = 2;
+		c.weighty = 0.5;
 		temp = new JButton("=");
 		temp.addActionListener(new ActionListener(){ //Listener for Equals
 			public void actionPerformed(ActionEvent e) {
@@ -399,6 +452,9 @@ public class Interface extends JFrame{
 		listFrame.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		listFrame.setPreferredSize(new Dimension(160, 180));
 		
+		JLabel topLab = new JLabel("Memory",SwingConstants.CENTER);
+		topLab.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		
 		memStrings = new DefaultListModel<Double>(); //Serialized vals saved here
 		memStrings.addElement(55.0); //Note: Disable rounding of shown values
 		
@@ -406,7 +462,14 @@ public class Interface extends JFrame{
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL);
 		list.setVisibleRowCount(-1);
-//		list.addListSelectionListener(new ElementPressed()); //Add a listener for on click of element
+		list.addListSelectionListener(new ListSelectionListener(){ //Listener for on click of element
+			public void valueChanged(ListSelectionEvent arg0) {
+				int index = list.getSelectedIndex();
+				if (index > -1){ //Not a non-existent index
+					calcField.setText(Double.toString(memStrings.getElementAt(index)));
+				}
+			}
+		}); 
 		
 		JScrollPane scroller = new JScrollPane(list);
 		scroller.setPreferredSize(new Dimension(100,280));
@@ -426,16 +489,22 @@ public class Interface extends JFrame{
 		});
 		memButtons.add(temp);
 		
-		
 		temp = new JButton("M-"); //Removes selected val from mem
 		temp.setPreferredSize(new Dimension(10,30));
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				
+				int index = list.getSelectedIndex();
+				memStrings.remove(index);
+				if (memStrings.size() != 0){
+					if (index == memStrings.getSize()){
+						index--;
+					}
+					list.setSelectedIndex(index);
+			        list.ensureIndexIsVisible(index);
+				}
 			}
 		});
 		memButtons.add(temp);
-		
 		
 		temp = new JButton("MC"); //Clears entire mem
 		temp.setPreferredSize(new Dimension(10,30));
@@ -447,7 +516,7 @@ public class Interface extends JFrame{
 		});
 		memButtons.add(temp);
 		
-		
+		listFrame.add(topLab, "North");
 		listFrame.add(list);
 		listFrame.add(memButtons,"South");
 		
@@ -486,9 +555,14 @@ public class Interface extends JFrame{
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			Double val = Double.parseDouble(calcField.getText());
+			double val = Double.parseDouble(calcField.getText());
 			val = func.function(val);
-			dispLabel.setText(eq + "(" + dispLabel.getText() + ")");
+			if(dispLabel.getText().equals(" ")){
+				dispLabel.setText(eq + "(" + calcField.getText() + ")");
+			}else{
+				dispLabel.setText(eq + "(" + dispLabel.getText() + ")");
+			}
+			
 			calcField.setText(Double.toString(val));
 		}
 	}
@@ -496,7 +570,6 @@ public class Interface extends JFrame{
 	public static class twoVarFuncPressed implements ActionListener{ //Listener for Function Buttons
 		private MathFunc func; //What function is this
 		private String eq; //Used for label display
-//		Double one, two;
 		
 		public twoVarFuncPressed(MathFunc fun, String equ){
 			func = fun;
@@ -508,18 +581,6 @@ public class Interface extends JFrame{
 			hold.setVar(Double.parseDouble(calcField.getText()));
 			dispLabel.setText(calcField.getText() + dispLabel.getText() + eq);
 			firstDigit = true;
-//			Double valOne = Double.parseDouble(calcField.getText());
-//			Double valTwo = Double.parseDouble(calcField.getText()); //Change this to actually make sense
-//			valOne = func.twoVarFunction(valOne,valTwo);
-//			calcField.setText(Double.toString(valOne));
-		}
-	}
-	
-	public static class backPressed implements ActionListener{ //Listener for <=
-		
-		public void actionPerformed(ActionEvent e) {
-
-
 		}
 	}
 	
