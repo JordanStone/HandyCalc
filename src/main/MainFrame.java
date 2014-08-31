@@ -34,6 +34,8 @@ public class MainFrame extends JFrame{
 	static NumberFormat formatter; //Used to format double values to look correct when displayed
 	
 	static ThemeFactory theme; //Factory theme defining design of the program
+	
+	static int parenCount; //Used to ensure that parenthesis are balanced. If positive, more left parens than right. If zero, parens balanced.
 
 //Main
 	public static void main (String[] args){
@@ -43,7 +45,9 @@ public class MainFrame extends JFrame{
 		formatter.setMaximumFractionDigits(8);
 		
 		firstDigit = true;
-		theme = new BlackTheme();
+		theme = new ThemeFactory();
+		
+		parenCount = 0;
 		
 		MainFrame main = new MainFrame();
         main.setVisible(true);
@@ -109,6 +113,8 @@ public class MainFrame extends JFrame{
         });
         edit.add(eMenuItem);
         
+        edit.addSeparator();
+        
         eMenuItem = theme.makeMenuItem("Undo",KeyEvent.VK_U,"Undoes Last Action / Calculation");
         eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own class as it will be called from key commands
 			public void actionPerformed(ActionEvent e) {
@@ -128,13 +134,6 @@ public class MainFrame extends JFrame{
         
         JMenu help = theme.makeMenu("Help",KeyEvent.VK_H);
         
-        eMenuItem = theme.makeMenuItem("About",KeyEvent.VK_A,"Information About This Version of HandyCalc");
-        eMenuItem.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-			}
-        });
-        
         eMenuItem = theme.makeMenuItem("View Help",KeyEvent.VK_V,"View Help Menu for Features of HandyCalc");
         eMenuItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -142,10 +141,22 @@ public class MainFrame extends JFrame{
 			}
         });
         help.add(eMenuItem);
+        
+        help.addSeparator();
+        
+        eMenuItem = theme.makeMenuItem("About",KeyEvent.VK_A,"Information About This Version of HandyCalc");
+        eMenuItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) { //Open the About frame
+				About ab = new About();
+				ab.setSize(400,300);
+				ab.setVisible(true);
+				ab.setResizable(false);
+			}
+        });
+        help.add(eMenuItem);
 
         menubar.add(file);
         menubar.add(edit);
-        menubar.add(Box.createHorizontalGlue());
         menubar.add(help);
 
         setJMenuBar(menubar);
@@ -175,11 +186,12 @@ public class MainFrame extends JFrame{
 		
 		JPanel labelSpace = theme.makePanel(new BorderLayout()); //Components inside spacing
 		
-		dispLabel = theme.makeLabel(" ", SwingConstants.RIGHT); //Update Field
+		dispLabel = theme.makeLabel(" ", SwingConstants.RIGHT, null); //Update Field
 		labelSpace.add(dispLabel, "East");
 		
-		calcField = theme.makeTextField("0"); //Main Display
-		calcField.setHorizontalAlignment(JTextField.RIGHT);	
+		calcField = theme.makeTextField("0",SwingConstants.RIGHT,new Font("Consolas", Font.PLAIN, 40)); //Main Display
+		calcField.setHorizontalAlignment(SwingConstants.RIGHT); //This isn't being correctly aligned in the above line
+		calcField.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		calcField.setEditable(false);
 		labelSpace.add(calcField, "South");		
 			
@@ -347,11 +359,36 @@ public class MainFrame extends JFrame{
 		c.gridx = MAXWIDTH - 5;
 		temp = theme.makeButton(")", longSize);
 		// TODO Implement Parenthesis
+		temp.addActionListener(new ActionListener(){ //Listener for Right Paren
+			public void actionPerformed(ActionEvent e) {
+				if(parenCount > 0){ //Unbalanced left paren is present
+					//Check if there is anything after the left paren. If not, add the current val displayed in calc field to displabel
+					String temp = dispLabel.getText();
+					if (temp.charAt(temp.length()-1) == '('){ //Nothing after the latest left paren
+						dispLabel.setText(dispLabel.getText() + calcField.getText() + ")");
+					}else if (temp.charAt(temp.length()-1) == ' '){ //If there's a space, it's a two var eq
+						dispLabel.setText(dispLabel.getText() + calcField.getText() + ")");
+					}
+					
+					parenCount -= 1; //Decrement parenCount
+				}
+			}
+		});
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 6;
 		temp = theme.makeButton("(", longSize);
 		// TODO Implement Parenthesis
+		temp.addActionListener(new ActionListener(){ //Listener for Left Paren
+			public void actionPerformed(ActionEvent e) {
+				dispLabel.setText(dispLabel.getText() + " (");
+				firstDigit = true;
+				
+//				calcField.setText("0");
+				
+				parenCount += 1; //Increment parenCount
+			}
+		});
 		gridSpace.add(temp,c);
 		
 	//Second Row
@@ -369,8 +406,8 @@ public class MainFrame extends JFrame{
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 2;
-		temp = theme.makeButton("Mod", longSize);
-		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Mod(), "Mod"));
+		temp = theme.makeButton(" Mod ", longSize);
+		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Mod(), " Mod "));
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 3;
@@ -461,7 +498,7 @@ public class MainFrame extends JFrame{
 				if(hold != null){
 					Double valOne = Double.parseDouble(calcField.getText()); 
 					valOne = hold.function(valOne);
-					calcField.setText(formatter.format(valOne)); 
+//					calcField.setText(formatter.format(valOne)); 
 					dispLabel.setText(" "); //Clear the display label
 					firstDigit = true;
 				}
@@ -491,13 +528,13 @@ public class MainFrame extends JFrame{
 		listFrame.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		listFrame.setPreferredSize(new Dimension(160, 180));
 		
-		JLabel topLab = theme.makeLabel("Memory",SwingConstants.CENTER);
+		JLabel topLab = theme.makeLabel("Memory",SwingConstants.CENTER, null);
 		topLab.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		memVals = new DefaultListModel<Double>(); //Serialized vals saved here
-		memVals.addElement(55.0); //Note: Disable rounding of shown values
+		memVals.addElement(3.14159265); //Test value
 		
-		list = new JList<Double>(memVals); //Put serialized values in this
+		list = theme.makeJListDouble(memVals); //Put serialized values in this
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL);
 		list.setVisibleRowCount(-1);
@@ -516,7 +553,7 @@ public class MainFrame extends JFrame{
 		
 		JButton temp;
 		
-		temp = theme.makeButton("M+", new Dimension(10,30)); //Adds current val to mem
+		temp = theme.makeHighlightButton("M+", new Dimension(10,30)); //Adds current val to mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				memVals.addElement(Double.parseDouble(calcField.getText())); //Probably add some sort of formatting here
@@ -525,7 +562,7 @@ public class MainFrame extends JFrame{
 		});
 		memButtons.add(temp);
 		
-		temp = theme.makeButton("M-", new Dimension(10,30)); //Removes selected val from mem
+		temp = theme.makeHighlightButton("M-", new Dimension(10,30)); //Removes selected val from mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				int index = list.getSelectedIndex();
@@ -543,7 +580,7 @@ public class MainFrame extends JFrame{
 		});
 		memButtons.add(temp);
 		
-		temp = theme.makeButton("MC", new Dimension(10,30)); //Clears entire mem
+		temp = theme.makeHighlightButton("MC", new Dimension(10,30)); //Clears entire mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				memVals.clear();
@@ -603,10 +640,10 @@ public class MainFrame extends JFrame{
 			if(dispLabel.getText().equals(" ")){
 				dispLabel.setText(eq + "(" + calcField.getText() + ")");
 			}else{
-				dispLabel.setText(eq + "(" + dispLabel.getText() + ")");
+				dispLabel.setText(eq + "(" + dispLabel.getText().trim() + ")");
 			}
 			
-			calcField.setText(formatter.format(val));
+//			calcField.setText(formatter.format(val));
 			firstDigit = true;
 		}
 	}
@@ -623,7 +660,7 @@ public class MainFrame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			hold = func;
 			hold.setVar(Double.parseDouble(calcField.getText()));
-			dispLabel.setText(calcField.getText() + dispLabel.getText() + eq);
+			dispLabel.setText(dispLabel.getText() + calcField.getText() + eq);
 			firstDigit = true;
 		}
 	}

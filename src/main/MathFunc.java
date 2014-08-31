@@ -44,6 +44,11 @@ public abstract class MathFunc {
 	}
 	public static class Div extends MathFunc {
 		public double function(double x) {
+			if (x == 0){ //Don't let user divide by 0.
+				java.awt.Toolkit.getDefaultToolkit().beep();
+				return 0;
+			}
+			
 			return holdVar / (x);
 		}
 	}
@@ -61,11 +66,19 @@ public abstract class MathFunc {
 	}
 	public static class Sqrt extends MathFunc{
 		public double function(double x) {
+			if(x < 0){ //Don't let user root negative numbers
+				java.awt.Toolkit.getDefaultToolkit().beep();
+				return(x);
+			}
 			return Math.sqrt(x);
 		}
 	}
 	public static class Yroot extends MathFunc {
 		public double function(double x) {
+			if(holdVar < 0){ //Don't let user root negative numbers
+				java.awt.Toolkit.getDefaultToolkit().beep();
+				return(x);
+			}
 			return Math.pow(Math.exp (1/x), Math.log(holdVar));
 		}
 	}

@@ -1,21 +1,13 @@
-/*
- * Jordan Stone
- * stone@drexel.edu
- * CS338:GUI, Personal Project
- * 
- * ThemeFactory: Factory class to allow for easy modification of GUI objects.
- */
-
 package main;
 
 import java.awt.*;
 
 import javax.swing.*;
 
-public class ThemeFactory {
+public class WhiteTheme extends ThemeFactory {
 
-	public ThemeFactory(){
-		
+	public WhiteTheme(){
+		super();
 	}
 	
 	public JFrame makeFrame(){
@@ -24,8 +16,9 @@ public class ThemeFactory {
 		return temp;
 	}
 	
-	public JPanel makePanel(LayoutManager lay){ //Main Panel Style
+	public JPanel makePanel(LayoutManager lay){
 		JPanel temp = new JPanel();
+		temp.setBackground(new Color(210,210,210));
 		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
 			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
 		}else temp.setLayout(lay);
@@ -33,18 +26,9 @@ public class ThemeFactory {
 		return temp;
 	}
 	
-	public JPanel makeHighlightPanel(LayoutManager lay){ //Alternate Panel Style
+	public JPanel makeHighlightPanel(LayoutManager lay){
 		JPanel temp = new JPanel();
-		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
-			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
-		}else temp.setLayout(lay);
-			
-		return temp;
-	}
-	
-	public JPanel makeNumPanel(LayoutManager lay){ //Panel Style Used on NumPad
-		JPanel temp = new JPanel();
-		temp.setLayout(lay);
+		temp.setBackground(new Color(150,150,150));
 		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
 			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
 		}else temp.setLayout(lay);
@@ -52,24 +36,41 @@ public class ThemeFactory {
 		return temp;
 	}
 	
-	public JButton makeButton(String text, Dimension size){ //Main Button Style
+	public JPanel makeNumPanel(LayoutManager lay){
+		JPanel temp = new JPanel();
+		temp.setBackground(Color.GRAY);
+		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
+			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
+		}else temp.setLayout(lay);
+		
+		return temp;
+	}
+	
+	public JButton makeButton(String text, Dimension size){
 		JButton temp = new JButton(text);
+		
+		temp.setForeground(Color.BLACK);
 		
 		temp.setPreferredSize(size);
 		
 		return temp;
 	}
 	
-	public JButton makeHighlightButton(String text, Dimension size){ //Alternate Button Style
+	public JButton makeHighlightButton(String text, Dimension size){ //Main Button Style
 		JButton temp = new JButton(text);
+		
+		temp.setBackground(new Color(150,150,150));
+		temp.setForeground(Color.BLACK);
 		
 		temp.setPreferredSize(size);
 		
 		return temp;
 	}
 	
-	public JButton makeNumButton(String text, Dimension size){ //Button Style Used on NumPad
+	public JButton makeNumButton(String text, Dimension size){
 		JButton temp = new JButton(text);
+		temp.setBackground(Color.WHITE);
+		temp.setForeground(Color.BLACK);
 		
 		temp.setPreferredSize(size);
 		
@@ -77,14 +78,18 @@ public class ThemeFactory {
 	}
 	
 	public JLabel makeLabel(String text, int pos, Font f){
-		JLabel temp = new JLabel(text,pos);
+		JLabel temp = new JLabel(text, pos);
 		temp.setFont(f);
+		
+		temp.setForeground(Color.BLACK);
 		
 		return temp;
 	}
 	
 	public JList<Double> makeJListDouble(DefaultListModel<Double> vals){
 		JList<Double> temp = new JList<Double>(vals);
+		
+		temp.setBackground(Color.WHITE);
 		
 		return temp;
 	}
@@ -118,6 +123,4 @@ public class ThemeFactory {
 		
 		return temp;
 	}
-
-	
 }
