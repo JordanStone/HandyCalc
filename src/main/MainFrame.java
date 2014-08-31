@@ -45,7 +45,7 @@ public class MainFrame extends JFrame{
 		formatter.setMaximumFractionDigits(8);
 		
 		firstDigit = true;
-		theme = new ThemeFactory();
+		theme = new WhiteTheme();
 		
 		parenCount = 0;
 		
@@ -79,7 +79,7 @@ public class MainFrame extends JFrame{
         JMenu edit = theme.makeMenu("Edit",KeyEvent.VK_E);
 
         eMenuItem = theme.makeMenuItem("Copy",KeyEvent.VK_C,"Copy Number Currently in Result Box");
-        eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own class as it will be called from key commands
+        eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own function as it will be called from key commands
 			public void actionPerformed(ActionEvent e) {
 				StringSelection sel = new StringSelection(calcField.getText());
 				Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -89,7 +89,7 @@ public class MainFrame extends JFrame{
         edit.add(eMenuItem);
         
         eMenuItem = theme.makeMenuItem("Paste",KeyEvent.VK_P,"Paste Number into Result Box");
-        eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own class as it will be called from key commands
+        eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own function as it will be called from key commands
 			public void actionPerformed(ActionEvent e) {
 				Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
 				Transferable clip = cl.getContents(cl);
@@ -367,10 +367,15 @@ public class MainFrame extends JFrame{
 					if (temp.charAt(temp.length()-1) == '('){ //Nothing after the latest left paren
 						dispLabel.setText(dispLabel.getText() + calcField.getText() + ")");
 					}else if (temp.charAt(temp.length()-1) == ' '){ //If there's a space, it's a two var eq
+						
 						dispLabel.setText(dispLabel.getText() + calcField.getText() + ")");
+					}else{ //Else it's either a number or a right paren
+						dispLabel.setText(dispLabel.getText() + " )");
 					}
 					
-					parenCount -= 1; //Decrement parenCount
+					parenCount = parenCount - 1; //Decrement parenCount
+				}else{
+					Toolkit.getDefaultToolkit().beep();
 				}
 			}
 		});
@@ -386,7 +391,7 @@ public class MainFrame extends JFrame{
 				
 //				calcField.setText("0");
 				
-				parenCount += 1; //Increment parenCount
+				parenCount = parenCount + 1; //Increment parenCount
 			}
 		});
 		gridSpace.add(temp,c);
@@ -553,7 +558,7 @@ public class MainFrame extends JFrame{
 		
 		JButton temp;
 		
-		temp = theme.makeHighlightButton("M+", new Dimension(10,30)); //Adds current val to mem
+		temp = theme.makeButton("M+", new Dimension(10,30)); //Adds current val to mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				memVals.addElement(Double.parseDouble(calcField.getText())); //Probably add some sort of formatting here
@@ -562,7 +567,7 @@ public class MainFrame extends JFrame{
 		});
 		memButtons.add(temp);
 		
-		temp = theme.makeHighlightButton("M-", new Dimension(10,30)); //Removes selected val from mem
+		temp = theme.makeButton("M-", new Dimension(10,30)); //Removes selected val from mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				int index = list.getSelectedIndex();
@@ -580,7 +585,7 @@ public class MainFrame extends JFrame{
 		});
 		memButtons.add(temp);
 		
-		temp = theme.makeHighlightButton("MC", new Dimension(10,30)); //Clears entire mem
+		temp = theme.makeButton("MC", new Dimension(10,30)); //Clears entire mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				memVals.clear();
@@ -659,8 +664,14 @@ public class MainFrame extends JFrame{
 		
 		public void actionPerformed(ActionEvent e) {
 			hold = func;
-			hold.setVar(Double.parseDouble(calcField.getText()));
-			dispLabel.setText(dispLabel.getText() + calcField.getText() + eq);
+			
+			if (dispLabel.getText().charAt(dispLabel.getText().length()-1) == ')'){ //Closed paren
+				dispLabel.setText(dispLabel.getText() + eq);
+			}else{
+				hold.setVar(Double.parseDouble(calcField.getText()));
+				dispLabel.setText(dispLabel.getText() + calcField.getText() + eq);
+			}
+			
 			firstDigit = true;
 		}
 	}

@@ -49,6 +49,7 @@ public class WhiteTheme extends ThemeFactory {
 	public JButton makeButton(String text, Dimension size){
 		JButton temp = new JButton(text);
 		
+		temp.setBackground(new Color(150,150,150));
 		temp.setForeground(Color.BLACK);
 		
 		temp.setPreferredSize(size);
@@ -59,7 +60,7 @@ public class WhiteTheme extends ThemeFactory {
 	public JButton makeHighlightButton(String text, Dimension size){ //Main Button Style
 		JButton temp = new JButton(text);
 		
-		temp.setBackground(new Color(150,150,150));
+		temp.setBackground(new Color(200,200,200));
 		temp.setForeground(Color.BLACK);
 		
 		temp.setPreferredSize(size);

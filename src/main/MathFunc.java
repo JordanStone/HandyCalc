@@ -9,6 +9,8 @@
 
 package main;
 
+import java.awt.Toolkit;
+
 public abstract class MathFunc {
 	
 	protected double holdVar = 0;
@@ -67,7 +69,7 @@ public abstract class MathFunc {
 	public static class Sqrt extends MathFunc{
 		public double function(double x) {
 			if(x < 0){ //Don't let user root negative numbers
-				java.awt.Toolkit.getDefaultToolkit().beep();
+				Toolkit.getDefaultToolkit().beep();
 				return(x);
 			}
 			return Math.sqrt(x);
@@ -76,7 +78,7 @@ public abstract class MathFunc {
 	public static class Yroot extends MathFunc {
 		public double function(double x) {
 			if(holdVar < 0){ //Don't let user root negative numbers
-				java.awt.Toolkit.getDefaultToolkit().beep();
+				Toolkit.getDefaultToolkit().beep();
 				return(x);
 			}
 			return Math.pow(Math.exp (1/x), Math.log(holdVar));
