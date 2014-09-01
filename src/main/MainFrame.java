@@ -79,38 +79,12 @@ public class MainFrame extends JFrame{
         JMenu edit = theme.makeMenu("Edit",KeyEvent.VK_E);
 
         eMenuItem = theme.makeMenuItem("Copy",KeyEvent.VK_C,"Copy Number Currently in Result Box");
-        eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own function as it will be called from key commands
-			public void actionPerformed(ActionEvent e) {
-				StringSelection sel = new StringSelection(calcField.getText());
-				Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
-				cl.setContents(sel,sel);
-			}
-        }); 
+        eMenuItem.addActionListener(new copy());
         edit.add(eMenuItem);
         
         eMenuItem = theme.makeMenuItem("Paste",KeyEvent.VK_P,"Paste Number into Result Box");
-        eMenuItem.addActionListener(new ActionListener(){ //Note: May give this its own function as it will be called from key commands
-			public void actionPerformed(ActionEvent e) {
-				Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
-				Transferable clip = cl.getContents(cl);
-				String regExp = "[\\x00-\\x20]*[+-]?(((((\\p{Digit}+)(\\.)?((\\p{Digit}+)?)([eE][+-]?(\\p{Digit}+))?)|(\\.((\\p{Digit}+))([eE][+-]?(\\p{Digit}+))?)|(((0[xX](\\p{XDigit}+)(\\.)?)|(0[xX](\\p{XDigit}+)?(\\.)(\\p{XDigit}+)))[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*";
-				if (clip != null){
-					try {
-						if (clip.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-		                  String s = (String)(clip.getTransferData(DataFlavor.stringFlavor));
-		                  if (s.matches(regExp)){
-		                	  calcField.setText(s);
-		                  }
-		                }
-					}catch (UnsupportedFlavorException ufe) {
-						System.err.println("Flavor unsupported: " + ufe);
-		            }catch (IOException ioe) {
-		            	System.err.println("Data not available: " + ioe);
-		            }
-				}
-				
-			}
-        });
+        eMenuItem.addActionListener(new paste());
+
         edit.add(eMenuItem);
         
         edit.addSeparator();
@@ -162,11 +136,23 @@ public class MainFrame extends JFrame{
         setJMenuBar(menubar);
 
 		JPanel p = theme.makePanel(new BorderLayout());
-
+		
+//Key Bindings
+		//Copy
+		p.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK), "copy");
+        p.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK), "copy");
+		p.getActionMap().put("copy", new copy());
+		
+		//Paste
+		p.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK), "paste");
+        p.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK), "paste");
+		p.getActionMap().put("paste", new paste());
+        
+        
 		p.add(displayBar(), "North");
 		p.add(bottomComponents());
+		
 		getContentPane().add(p);
-				
 		pack();
         
         setTitle("HandyCalc");
@@ -386,7 +372,12 @@ public class MainFrame extends JFrame{
 		// TODO Implement Parenthesis
 		temp.addActionListener(new ActionListener(){ //Listener for Left Paren
 			public void actionPerformed(ActionEvent e) {
-				dispLabel.setText(dispLabel.getText() + " (");
+				if (dispLabel.getText().charAt(dispLabel.getText().length()-1) == ')'){ //Right paren is last character
+					String temp = dispLabel.getText().substring(0,dispLabel.getText().lastIndexOf(' ') + 1);
+					dispLabel.setText(temp + "(");
+				}else{//Default case
+					dispLabel.setText(dispLabel.getText() + " (");
+				}
 				firstDigit = true;
 				
 //				calcField.setText("0");
@@ -616,11 +607,11 @@ public class MainFrame extends JFrame{
 					calcField.setText(0 + nVal);
 				}else calcField.setText(nVal);
 				firstDigit = false;
-			}else{				// TODO Disallow creating multiple decimal points
+			}else{
 //				rv = (Double.parseDouble(calcField.getText()) * 10) + nVal;
 				if(nVal.equals(".")){
 					if(calcField.getText().contains(".")){ //If there is already a decimal, don't make another one
-						//Might create a noise to sound in this condition
+						Toolkit.getDefaultToolkit().beep();
 						return;
 					}
 				}
@@ -642,11 +633,20 @@ public class MainFrame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			double val = Double.parseDouble(calcField.getText());
 			val = func.function(val);
-			if(dispLabel.getText().equals(" ")){
+			if(dispLabel.getText().equals(" ")){//Empty field
 				dispLabel.setText(eq + "(" + calcField.getText() + ")");
-			}else{
-				dispLabel.setText(eq + "(" + dispLabel.getText().trim() + ")");
+			}else if(dispLabel.getText().charAt(dispLabel.getText().length()-1) == '('){ //Last char is a left paren
+				String temp = dispLabel.getText().substring(0,dispLabel.getText().lastIndexOf(' ') + 1);
+				dispLabel.setText(temp + dispLabel.getText().substring(dispLabel.getText().length()-1) + eq + "(" + calcField.getText() + ")");
+			}else if(dispLabel.getText().charAt(dispLabel.getText().length()-1) == ' '){ //Unfinished Two Var Equation
+				dispLabel.setText(dispLabel.getText() + eq + "(" + calcField.getText() + ")");
+			}else if(dispLabel.getText().charAt(0) == '(' || 
+					dispLabel.getText().charAt(dispLabel.getText().length()-1) == ')'){ // Displayed is an enclosed eq
+				dispLabel.setText(eq + dispLabel.getText().trim());
+			}else{ //Default case if not a special case
+				dispLabel.setText("(" + eq + dispLabel.getText().trim() + ")");
 			}
+			
 			
 //			calcField.setText(formatter.format(val));
 			firstDigit = true;
@@ -676,5 +676,37 @@ public class MainFrame extends JFrame{
 		}
 	}
 	
+	
+	
+	public static class copy extends AbstractAction{
+		public void actionPerformed(ActionEvent e) {
+			StringSelection sel = new StringSelection(calcField.getText());
+			Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
+			cl.setContents(sel,sel);
+		}
+	}
+	
+	public static class paste extends AbstractAction{
+		public void actionPerformed(ActionEvent e) {
+			Clipboard cl = Toolkit.getDefaultToolkit().getSystemClipboard();
+			Transferable clip = cl.getContents(cl);
+			String regExp = "[\\x00-\\x20]*[+-]?(((((\\p{Digit}+)(\\.)?((\\p{Digit}+)?)([eE][+-]?(\\p{Digit}+))?)|(\\.((\\p{Digit}+))([eE][+-]?(\\p{Digit}+))?)|(((0[xX](\\p{XDigit}+)(\\.)?)|(0[xX](\\p{XDigit}+)?(\\.)(\\p{XDigit}+)))[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*";
+			if (clip != null){
+				try {
+					if (clip.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+		                 String s = (String)(clip.getTransferData(DataFlavor.stringFlavor));
+		                 if (s.matches(regExp)){
+		                	 calcField.setText(s);
+		                 }
+					}
+				}catch (UnsupportedFlavorException ufe) {
+					System.err.println("Flavor unsupported: " + ufe);
+				}catch (IOException ioe) {
+					System.err.println("Data not available: " + ioe);
+				}
+			}
+			firstDigit = true;
+		}
+	}
 	
 }

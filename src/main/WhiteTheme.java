@@ -11,76 +11,64 @@ public class WhiteTheme extends ThemeFactory {
 	}
 	
 	public JFrame makeFrame(){
-		JFrame temp = new JFrame();
+		JFrame temp = super.makeFrame();
 		
 		return temp;
 	}
 	
 	public JPanel makePanel(LayoutManager lay){
-		JPanel temp = new JPanel();
+		JPanel temp = super.makePanel(lay);
+		
 		temp.setBackground(new Color(210,210,210));
-		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
-			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
-		}else temp.setLayout(lay);
 		
 		return temp;
 	}
 	
 	public JPanel makeHighlightPanel(LayoutManager lay){
-		JPanel temp = new JPanel();
+		JPanel temp = super.makeHighlightPanel(lay);
+		
 		temp.setBackground(new Color(150,150,150));
-		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
-			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
-		}else temp.setLayout(lay);
 		
 		return temp;
 	}
 	
 	public JPanel makeNumPanel(LayoutManager lay){
-		JPanel temp = new JPanel();
+		JPanel temp = super.makeNumPanel(lay);
+		
 		temp.setBackground(Color.GRAY);
-		if(lay instanceof BoxLayout){ //Deals with BoxLayout issue where JPanel must reference itself in call
-			temp.setLayout(new BoxLayout(temp,((BoxLayout) lay).getAxis()));
-		}else temp.setLayout(lay);
 		
 		return temp;
 	}
 	
 	public JButton makeButton(String text, Dimension size){
-		JButton temp = new JButton(text);
+		JButton temp = super.makeButton(text,size);
 		
 		temp.setBackground(new Color(150,150,150));
 		temp.setForeground(Color.BLACK);
-		
-		temp.setPreferredSize(size);
 		
 		return temp;
 	}
 	
 	public JButton makeHighlightButton(String text, Dimension size){ //Main Button Style
-		JButton temp = new JButton(text);
+		JButton temp = super.makeHighlightButton(text,size);
 		
 		temp.setBackground(new Color(200,200,200));
 		temp.setForeground(Color.BLACK);
-		
-		temp.setPreferredSize(size);
 		
 		return temp;
 	}
 	
 	public JButton makeNumButton(String text, Dimension size){
-		JButton temp = new JButton(text);
+		JButton temp = super.makeNumButton(text,size);
+		
 		temp.setBackground(Color.WHITE);
 		temp.setForeground(Color.BLACK);
-		
-		temp.setPreferredSize(size);
 		
 		return temp;
 	}
 	
 	public JLabel makeLabel(String text, int pos, Font f){
-		JLabel temp = new JLabel(text, pos);
-		temp.setFont(f);
+		JLabel temp = super.makeLabel(text,pos,f);
 		
 		temp.setForeground(Color.BLACK);
 		
@@ -88,7 +76,7 @@ public class WhiteTheme extends ThemeFactory {
 	}
 	
 	public JList<Double> makeJListDouble(DefaultListModel<Double> vals){
-		JList<Double> temp = new JList<Double>(vals);
+		JList<Double> temp = super.makeJListDouble(vals);
 		
 		temp.setBackground(Color.WHITE);
 		
@@ -96,8 +84,7 @@ public class WhiteTheme extends ThemeFactory {
 	}
 	
 	public JTextField makeTextField(String text, int pos, Font f){
-		JTextField temp = new JTextField(text, pos);
-		temp.setFont(f);
+		JTextField temp = super.makeTextField(text,pos,f);
 		
 		temp.setBackground(Color.WHITE);
 		
@@ -105,22 +92,19 @@ public class WhiteTheme extends ThemeFactory {
 	}
 	
 	public JMenuBar makeMenuBar(){
-		JMenuBar temp = new JMenuBar();
+		JMenuBar temp = super.makeMenuBar();
 		
 		return temp;
 	}
 	
 	public JMenu makeMenu(String name, int mnemonic){
-		JMenu temp = new JMenu(name);
-		temp.setMnemonic(mnemonic);
+		JMenu temp = super.makeMenu(name,mnemonic);
 		
 		return temp;
 	}
 	
 	public JMenuItem makeMenuItem(String name, int mnemonic, String tooltip){
-		JMenuItem temp = new JMenuItem(name);
-		temp.setMnemonic(mnemonic);
-		temp.setToolTipText(tooltip);
+		JMenuItem temp = super.makeMenuItem(name,mnemonic,tooltip);
 		
 		return temp;
 	}
