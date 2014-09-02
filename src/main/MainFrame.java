@@ -42,7 +42,7 @@ public class MainFrame extends JFrame{
 		
 		formatter = new DecimalFormat("#0"); //Initialize the formatter
 		formatter.setMinimumFractionDigits(0);
-		formatter.setMaximumFractionDigits(8);
+		formatter.setMaximumFractionDigits(14);
 		
 		firstDigit = true;
 		theme = new WhiteTheme();
@@ -302,6 +302,7 @@ public class MainFrame extends JFrame{
 				firstDigit = true;
 				calcField.setText("0"); //Clear the calculation field
 				dispLabel.setText(" "); //Clear the display label
+				hold = null; //Clear the current equation
 			}
 		});
 		
@@ -356,7 +357,7 @@ public class MainFrame extends JFrame{
 						
 						dispLabel.setText(dispLabel.getText() + calcField.getText() + ")");
 					}else{ //Else it's either a number or a right paren
-						dispLabel.setText(dispLabel.getText() + " )");
+						dispLabel.setText(dispLabel.getText().trim() + " )");
 					}
 					
 					parenCount = parenCount - 1; //Decrement parenCount
@@ -402,7 +403,7 @@ public class MainFrame extends JFrame{
 		gridSpace.add(temp,c);
 		
 		c.gridx = MAXWIDTH - 2;
-		temp = theme.makeButton(" Mod ", longSize);
+		temp = theme.makeButton("Mod", longSize);
 		temp.addActionListener(new twoVarFuncPressed(new MathFunc.Mod(), " Mod "));
 		gridSpace.add(temp,c);
 		
@@ -490,11 +491,19 @@ public class MainFrame extends JFrame{
 		c.fill = GridBagConstraints.VERTICAL;
 		temp = theme.makeButton("=", avgSize);
 		temp.addActionListener(new ActionListener(){ //Listener for Equals
+			
+			private Double valTwo;
+			
 			public void actionPerformed(ActionEvent e) {
 				if(hold != null){
-					Double valOne = Double.parseDouble(calcField.getText()); 
-					valOne = hold.function(valOne);
-//					calcField.setText(formatter.format(valOne)); 
+					if(firstDigit && dispLabel.getText().equals(" ")){ //Repeated Equals
+						hold.setVar(hold.function(valTwo));
+						calcField.setText(formatter.format(hold.getVar())); 
+						return;
+					}
+					valTwo = Double.parseDouble(calcField.getText());
+					hold.setVar(hold.function(valTwo));
+					calcField.setText(formatter.format(hold.getVar())); 
 					dispLabel.setText(" "); //Clear the display label
 					firstDigit = true;
 				}
@@ -564,6 +573,8 @@ public class MainFrame extends JFrame{
 				int index = list.getSelectedIndex();
 				if(index > -1){
 					memVals.remove(index);
+				}else{ //Make a noise if no val is selected
+					Toolkit.getDefaultToolkit().beep();
 				}
 				if (memVals.size() != 0){ //Automatically select next value after removing one.
 					if (index == memVals.getSize()){ 
@@ -579,7 +590,11 @@ public class MainFrame extends JFrame{
 		temp = theme.makeButton("MC", new Dimension(10,30)); //Clears entire mem
 		temp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				memVals.clear();
+				if (memVals.size() != 0){
+					memVals.clear();
+				}else{ //Make a noise if there are no vals to delete
+					Toolkit.getDefaultToolkit().beep();
+				}
 			}
 		});
 		memButtons.add(temp);
@@ -635,20 +650,24 @@ public class MainFrame extends JFrame{
 			val = func.function(val);
 			if(dispLabel.getText().equals(" ")){//Empty field
 				dispLabel.setText(eq + "(" + calcField.getText() + ")");
-			}else if(dispLabel.getText().charAt(dispLabel.getText().length()-1) == '('){ //Last char is a left paren
+			}
+			else if(dispLabel.getText().charAt(dispLabel.getText().length()-1) == '('){ //Last char is a left paren
 				String temp = dispLabel.getText().substring(0,dispLabel.getText().lastIndexOf(' ') + 1);
 				dispLabel.setText(temp + dispLabel.getText().substring(dispLabel.getText().length()-1) + eq + "(" + calcField.getText() + ")");
-			}else if(dispLabel.getText().charAt(dispLabel.getText().length()-1) == ' '){ //Unfinished Two Var Equation
+			}
+			else if(dispLabel.getText().charAt(dispLabel.getText().length()-1) == ' '){ //Unfinished Two Var Equation
 				dispLabel.setText(dispLabel.getText() + eq + "(" + calcField.getText() + ")");
-			}else if(dispLabel.getText().charAt(0) == '(' || 
+			}
+			else if(dispLabel.getText().charAt(0) == '(' && 
 					dispLabel.getText().charAt(dispLabel.getText().length()-1) == ')'){ // Displayed is an enclosed eq
 				dispLabel.setText(eq + dispLabel.getText().trim());
-			}else{ //Default case if not a special case
-				dispLabel.setText("(" + eq + dispLabel.getText().trim() + ")");
+			}
+			else{ //Default case if not a special case
+				dispLabel.setText(eq + "(" + dispLabel.getText().trim() + ")");
 			}
 			
 			
-//			calcField.setText(formatter.format(val));
+			calcField.setText(formatter.format(val));
 			firstDigit = true;
 		}
 	}
@@ -663,12 +682,18 @@ public class MainFrame extends JFrame{
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			hold = func;
+			if (hold != null && !(dispLabel.getText().equals(" ")) ){ //Consecutive functions
+				hold.setVar(hold.function(Double.parseDouble(calcField.getText())));
+				calcField.setText(formatter.format(hold.getVar()));
+				hold = func;
+			}else{
+				hold = func;
+				hold.setVar(Double.parseDouble(calcField.getText()));
+			}
 			
 			if (dispLabel.getText().charAt(dispLabel.getText().length()-1) == ')'){ //Closed paren
 				dispLabel.setText(dispLabel.getText() + eq);
 			}else{
-				hold.setVar(Double.parseDouble(calcField.getText()));
 				dispLabel.setText(dispLabel.getText() + calcField.getText() + eq);
 			}
 			
